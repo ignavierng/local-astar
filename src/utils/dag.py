@@ -150,7 +150,7 @@ def count_arrows_accuracy(arrows_true, arrows_est):
     # true pos
     true_pos = np.intersect1d(pred, cond, assume_unique=True)
     # false pos
-    false_pos = np.setdiff1d(pred, cond, assume_unique=True)
+    false_pos = np.setdiff1d(pred, cond_skeleton, assume_unique=True)
     # false neg
     false_neg = np.setdiff1d(cond, true_pos, assume_unique=True)
     # reverse
