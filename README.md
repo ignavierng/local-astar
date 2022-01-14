@@ -66,6 +66,7 @@ python src/main.py  --seed 1 \
                     --glasso_l1 0.05 \
                     --glasso_thres 0.0 \
                     --n_jobs -1 \
+                    --local_with_super_graph \
                     --use_path_extension \
                     --use_k_cycle_heuristic \
                     --k 3 \

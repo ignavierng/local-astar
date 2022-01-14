@@ -25,7 +25,7 @@ def get_include_graph(local_dag_searched):
     return include_graph
 
 
-def local_search(X, adj_und, search_method='astar', use_path_extension=True,
+def local_search(X, adj_und, search_method='astar', local_with_super_graph=True, use_path_extension=True,
                  use_k_cycle_heuristic=False, k=3, verbose=False, n_jobs=1, output_dir=None):
     # adj_und is a binary adjacency matrix of an undirected graph
     assert(adj_und == adj_und.T).all()    # adj_und must be symmetric
@@ -58,7 +58,8 @@ def local_search(X, adj_und, search_method='astar', use_path_extension=True,
     # results is a list of tuples of the form (vstructures, arcs, search_stats)
     all_search_stats = Parallel(n_jobs=n_jobs, backend='multiprocessing')(
         delayed(two_steps_search)(X, adj_und, pdag_trusted, node, search_method,
-                                  use_path_extension, use_k_cycle_heuristic, k, verbose)
+                                  local_with_super_graph, use_path_extension,
+                                  use_k_cycle_heuristic, k, verbose)
         for node in sorted_nodes)
 
     # Without parallel computing
@@ -75,8 +76,8 @@ def local_search(X, adj_und, search_method='astar', use_path_extension=True,
     return cpdag_est, all_search_stats
 
 
-def two_steps_search(X, adj_und, pdag_trusted, node, search_method='astar', use_path_extension=True,
-                     use_k_cycle_heuristic=False, k=3, verbose=False, n_jobs=1):
+def two_steps_search(X, adj_und, pdag_trusted, node, search_method='astar', local_with_super_graph=True,
+                     use_path_extension=True, use_k_cycle_heuristic=False, k=3, verbose=False, n_jobs=1):
     # To store statistics related to current seach procedure
     search_stats = {}
 
@@ -105,18 +106,20 @@ def two_steps_search(X, adj_und, pdag_trusted, node, search_method='astar', use_
     nodes = [node] + list(two_steps_neighbors)  # First entry is the target node
     index_to_node = dict(zip(range(len(nodes)), nodes))    # Setting the node's index tracker
     X_nodes = X[:, nodes]
-
-    # Search two-step neighbors with super-structure (more efficient)
-    super_graph = adj_und[np.ix_(nodes, nodes)]
     local_dag_searched = dag_trusted[np.ix_(nodes, nodes)]
     include_graph = get_include_graph(local_dag_searched)
-    search_stats['num_edges_search'] = np.abs(super_graph - include_graph).sum()
-    dag_est, search_stats_ = exact_search(X_nodes, super_graph, search_method, use_path_extension,
-                                          use_k_cycle_heuristic, k, verbose, include_graph)
+
+    # Search two-step neighbors with super-structure (more efficient)
+    if local_with_super_graph:
+        super_graph = adj_und[np.ix_(nodes, nodes)]
+        search_stats['num_edges_search'] = np.abs(super_graph - include_graph).sum()
+        dag_est, search_stats_ = exact_search(X_nodes, super_graph, search_method, use_path_extension,
+                                              use_k_cycle_heuristic, k, verbose, include_graph)
+    else:
+        # Search two-step neighbors without super-structure (less efficient)
+        dag_est, search_stats_ = exact_search(X_nodes, None, search_method, use_path_extension,
+                                              use_k_cycle_heuristic, k, verbose, include_graph)
     search_stats.update(search_stats_)
-    # Search two-step neighbors without super-structure (less efficient)
-    dag_est, search_stats_ = exact_search(X_nodes, None, search_method, use_path_extension,
-                                          use_k_cycle_heuristic, k, verbose, include_graph)
 
     # Get all v-structures involved in the subgraph of nodes_curr
     vstructures = get_vstructures(dag_est)

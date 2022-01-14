@@ -76,8 +76,9 @@ def main():
     elif args.search_strategy == 'local':
         dag_est = None    # Local search only estimates a CPDAG, so no DAG is returned
         cpdag_est, search_stats = local_search(dataset.X, super_graph, args.search_method,
-                                               args.use_path_extension, args.use_k_cycle_heuristic,
-                                               args.k, args.verbose, args.n_jobs, output_dir)
+                                               args.local_with_super_graph, args.use_path_extension,
+                                               args.use_k_cycle_heuristic, args.k, args.verbose,
+                                               args.n_jobs, output_dir)
     else:
         raise ValueError("Unknown search strategy.")
     _logger.info("Finished the search procedure.")

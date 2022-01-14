@@ -123,6 +123,11 @@ def add_search_args(parser):
                         default=1,
                         help="Number of jobs for parallel computing when performing the search.")
 
+    parser.add_argument('--local_with_super_graph',
+                        dest='local_with_super_graph',
+                        action='store_true',
+                        help="Whether to use super-structure when performing local exact search.")
+
     parser.add_argument('--use_path_extension',
                         dest='use_path_extension',
                         action='store_true',
