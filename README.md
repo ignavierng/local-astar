@@ -1,7 +1,7 @@
 
 # Causal Discovery with Local A*
 
-This repository contains an implementation of the causal discovery/structure learning method described in ["Reliable Causal Discovery with Improved Exact Search and Weaker Assumptions"](https://papers.nips.cc/paper/2021/hash/a9b4ec2eb4ab7b1b9c3392bb5388119d-Abstract.html). 
+This repository contains an implementation of the causal discovery/structure learning method described in ["Reliable Causal Discovery with Improved Exact Search and Weaker Assumptions"](https://arxiv.org/abs/2201.05666). 
 
 If you find it useful, please consider citing:
 ```bibtex
